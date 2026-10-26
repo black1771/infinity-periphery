@@ -1086,4 +1086,44 @@ contract PositionManagerTest is Test, PosmTestSetup, LiquidityFuzzers {
             assertEq(address(_subscriber), address(subscriber));
         }
     }
+
+    function test_byblack_V14_unauthorizedDecrease() public {
+        uint256 tokenId = lpm.nextTokenId();
+
+        mint(
+            key,
+            -120,
+            120,
+            1e18,
+            alice,
+            ZERO_BYTES
+        );
+
+        assertEq(lpm.ownerOf(tokenId), alice);
+
+        uint256 liquidityBefore =
+            lpm.getPositionLiquidity(tokenId);
+
+        bytes memory calls = getDecreaseEncoded(
+            tokenId,
+            1e17,
+            0,
+            0,
+            ZERO_BYTES
+        );
+
+        address bob = makeAddr("BYBLACK_BOB");
+
+        vm.prank(bob);
+        vm.expectRevert();
+        lpm.modifyLiquidities(calls, _deadline);
+
+        assertEq(lpm.ownerOf(tokenId), alice);
+
+        assertEq(
+            lpm.getPositionLiquidity(tokenId),
+            liquidityBefore
+        );
+    }
+
 }
