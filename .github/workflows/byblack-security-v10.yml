@@ -1,17 +1,18 @@
-name: Byblack Security V10
+name: Byblack Security V11
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v10:
+  security-v11:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
-      - name: Checkout
+      - name: Checkout test branch
         uses: actions/checkout@v4
         with:
+          ref: test/byblack-notifier-ci
           submodules: recursive
 
       - name: Install Foundry
@@ -19,16 +20,22 @@ jobs:
         with:
           version: stable
 
-      - name: Reentrancy Tests
+      - name: Verify regression test exists
+        run: |
+          grep -q \
+            'function test_byblack_revertingSubscriber_preservesPositionAndBalances()' \
+            test/pool-cl/position-managers/CLPositionManager.notifier.sol
+
+      - name: Reentrancy tests
         run: |
           forge test \
             --match-path 'test/pool-cl/position-managers/CLPositionManager.notifier.sol' \
             --match-test 'test_(unsubscribe_reverts_VaultMustBeUnlocked|subscribe_reverts_VaultMustBeUnlocked|transferFrom_reverts_VaultMustBeUnlocked)' \
-            -vv
+            --fail-if-no-tests -vv
 
-      - name: Balance Protection Test
+      - name: Balance protection test
         run: |
           forge test \
             --match-path 'test/pool-cl/position-managers/CLPositionManager.notifier.sol' \
-            --match-test 'test_byblack_revertingSubscriber_preservesPositionAndBalances' \
-            -vv
+            --match-test '^test_byblack_revertingSubscriber_preservesPositionAndBalances$' \
+            --fail-if-no-tests -vv
