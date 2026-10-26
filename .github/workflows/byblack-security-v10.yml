@@ -1,10 +1,10 @@
-name: Byblack Security V11
+name: Byblack Security V13
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v11:
+  security-v13:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -20,24 +20,15 @@ jobs:
         with:
           version: stable
 
-      - name: Verify regression test exists
+      - name: Verify V13 test exists
         run: |
           grep -q \
-            'function test_byblack_revertingSubscriber_preservesPositionAndBalances()' \
-            test/pool-cl/position-managers/CLPositionManager.notifier.sol
+            'function test_byblack_sweep_leftoverTokens()' \
+            test/pool-cl/position-managers/ByblackSweepV13.t.sol
 
-      - name: Reentrancy tests
-        env:
-          FOUNDRY_FUZZ_RUNS: 256
+      - name: Run SWEEP V13 test
         run: |
           forge test \
-            --match-path 'test/pool-cl/position-managers/CLPositionManager.notifier.sol' \
-            --match-test 'test_(unsubscribe_reverts_VaultMustBeUnlocked|subscribe_reverts_VaultMustBeUnlocked|transferFrom_reverts_VaultMustBeUnlocked)' \
-            -vv
-
-      - name: Balance protection test
-        run: |
-          forge test \
-            --match-path 'test/pool-cl/position-managers/CLPositionManager.notifier.sol' \
-            --match-test '^test_byblack_revertingSubscriber_preservesPositionAndBalances$' \
-            -vv
+            --match-path 'test/pool-cl/position-managers/ByblackSweepV13.t.sol' \
+            --match-test '^test_byblack_sweep_leftoverTokens$' \
+            -vvv
