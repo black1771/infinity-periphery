@@ -1126,4 +1126,96 @@ contract PositionManagerTest is Test, PosmTestSetup, LiquidityFuzzers {
         );
     }
 
+
+    function test_byblack_V15_multiactionAtomicRollback() public {
+        address bob = makeAddr("BYBLACK_V15_BOB");
+
+        uint256 tokenId = lpm.nextTokenId();
+
+        mint(
+            key,
+            -120,
+            120,
+            1e18,
+            alice,
+            ZERO_BYTES
+        );
+
+        uint256 liquidityBefore =
+            lpm.getPositionLiquidity(tokenId);
+
+        address token = Currency.unwrap(currency0);
+        uint256 amount = 1000;
+
+        IERC20(token).transfer(address(lpm), amount);
+
+        uint256 bobBefore =
+            IERC20(token).balanceOf(bob);
+
+        uint256 managerBefore =
+            IERC20(token).balanceOf(address(lpm));
+
+        Plan memory plan = Planner.init();
+
+        plan.add(
+            Actions.SWEEP,
+            abi.encode(currency0, bob)
+        );
+
+        bytes memory decreaseCalls = getDecreaseEncoded(
+            tokenId,
+            1e17,
+            0,
+            0,
+            ZERO_BYTES
+        );
+
+        (
+            bytes memory decreaseActions,
+            bytes[] memory decreaseParams
+        ) = abi.decode(
+            decreaseCalls,
+            (bytes, bytes[])
+        );
+
+        for (uint256 i = 0; i < decreaseActions.length; i++) {
+            plan.add(
+                uint8(decreaseActions[i]),
+                decreaseParams[i]
+            );
+        }
+
+        vm.prank(bob);
+        vm.expectRevert();
+
+        lpm.modifyLiquidities(
+            plan.encode(),
+            block.timestamp + 100
+        );
+
+        assertEq(
+            IERC20(token).balanceOf(bob),
+            bobBefore,
+            "Bob received tokens"
+        );
+
+        assertEq(
+            IERC20(token).balanceOf(address(lpm)),
+            managerBefore,
+            "Manager balance changed"
+        );
+
+        assertEq(
+            lpm.ownerOf(tokenId),
+            alice,
+            "NFT ownership changed"
+        );
+
+        assertEq(
+            lpm.getPositionLiquidity(tokenId),
+            liquidityBefore,
+            "Liquidity changed"
+        );
+    }
+
 }
