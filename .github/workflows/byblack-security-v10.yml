@@ -1,15 +1,15 @@
-name: Byblack Security V13
+name: Byblack Security V14
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v13:
+  security-v14:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
-      - name: Checkout test branch
+      - name: Checkout V14 branch
         uses: actions/checkout@v4
         with:
           ref: test/byblack-notifier-ci
@@ -20,15 +20,15 @@ jobs:
         with:
           version: stable
 
-      - name: Verify V13 test exists
+      - name: Verify V14 test exists
         run: |
           grep -q \
-            'function test_byblack_sweep_leftoverTokens()' \
-            test/pool-cl/position-managers/ByblackSweepV13.t.sol
+            'function test_byblack_V14_unauthorizedDecrease()' \
+            test/pool-cl/position-managers/CLPositionManager.t.sol
 
-      - name: Run SWEEP V13 test
+      - name: Run V14 unauthorized decrease test
         run: |
           forge test \
-            --match-path 'test/pool-cl/position-managers/ByblackSweepV13.t.sol' \
-            --match-test '^test_byblack_sweep_leftoverTokens$' \
+            --match-path 'test/pool-cl/position-managers/CLPositionManager.t.sol' \
+            --match-test '^test_byblack_V14_unauthorizedDecrease$' \
             -vvv
