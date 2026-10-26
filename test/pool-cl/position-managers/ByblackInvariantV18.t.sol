@@ -122,7 +122,7 @@ contract ByblackInvariantV18 is
             lpm.getPositionLiquidity(tokenId);
 
         handler = new ByblackHandlerV18(
-            CLPositionManager(address(lpm)),
+            CLPositionManager(payable(address(lpm))),
             alice,
             bob,
             tokenId
