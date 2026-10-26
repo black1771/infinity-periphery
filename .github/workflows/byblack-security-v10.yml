@@ -1,15 +1,15 @@
-name: Byblack Security V15
+name: Byblack Security V16
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v15:
+  security-v16:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
-      - name: Checkout V15 branch
+      - name: Checkout V16 branch
         uses: actions/checkout@v4
         with:
           ref: test/byblack-notifier-ci
@@ -20,15 +20,15 @@ jobs:
         with:
           version: stable
 
-      - name: Verify V15 test exists
+      - name: Verify V16 test exists
         run: |
           grep -q \
-            'function test_byblack_V15_multiactionAtomicRollback()' \
+            'function test_byblack_V16_actionOrdering()' \
             test/pool-cl/position-managers/CLPositionManager.t.sol
 
-      - name: Run V15 atomic rollback test
+      - name: Run V16 action ordering test
         run: |
           forge test \
             --match-path 'test/pool-cl/position-managers/CLPositionManager.t.sol' \
-            --match-test '^test_byblack_V15_multiactionAtomicRollback$' \
+            --match-test '^test_byblack_V16_actionOrdering$' \
             -vvv
