@@ -84,6 +84,16 @@ contract ByblackAuthV23 is PosmTestSetup {
             )
         );
 
+        plan.add(
+            Actions.CLEAR_OR_TAKE,
+            abi.encode(currency0, type(uint256).max)
+        );
+
+        plan.add(
+            Actions.CLEAR_OR_TAKE,
+            abi.encode(currency1, type(uint256).max)
+        );
+
         return plan.encode();
     }
 
