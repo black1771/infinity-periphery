@@ -1,15 +1,15 @@
-name: Byblack Security Hunter V26
+name: Byblack Security Hunter V27
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v26:
+  security-v27:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
     steps:
-      - name: Checkout test branch
+      - name: Checkout security branch
         uses: actions/checkout@v4
         with:
           ref: test/byblack-notifier-ci
@@ -20,8 +20,8 @@ jobs:
         with:
           version: stable
 
-      - name: Run V26 permit security tests
+      - name: Run V27 accounting tests
         run: |
           forge test \
-            --match-contract ByblackPermitV26 \
+            --match-contract ByblackAccountingV27 \
             -vvv
