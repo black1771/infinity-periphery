@@ -2,8 +2,43 @@
 pragma solidity ^0.8.24;
 
 import {ByblackSequenceV24} from "./ByblackSequenceV24.t.sol";
+import {Actions} from "../../../src/libraries/Actions.sol";
+import {Planner, Plan} from "../../../src/libraries/Planner.sol";
 
 contract ByblackBalancesV28 is ByblackSequenceV24 {
+
+    function payoutPayload()
+        internal
+        view
+        returns (bytes memory)
+    {
+        Plan memory plan = Planner.init();
+
+        plan.add(
+            Actions.CL_DECREASE_LIQUIDITY,
+            abi.encode(
+                tokenId,
+                initialLiquidity / 2,
+                uint128(0),
+                uint128(0),
+                bytes("")
+            )
+        );
+
+        // Zero threshold: take positive deltas.
+        plan.add(
+            Actions.CLEAR_OR_TAKE,
+            abi.encode(currency0, uint256(0))
+        );
+
+        plan.add(
+            Actions.CLEAR_OR_TAKE,
+            abi.encode(currency1, uint256(0))
+        );
+
+        return plan.encode();
+    }
+
 
     function test_V28_ownerReceivesTokens() public {
         uint256 bob0Before = currency0.balanceOf(bob);
@@ -14,7 +49,7 @@ contract ByblackBalancesV28 is ByblackSequenceV24 {
 
         vm.prank(bob);
         lpm.modifyLiquidities(
-            decreasePayload(),
+            payoutPayload(),
             block.timestamp + 100
         );
 
@@ -70,7 +105,7 @@ contract ByblackBalancesV28 is ByblackSequenceV24 {
         );
 
         lpm.modifyLiquidities(
-            decreasePayload(),
+            payoutPayload(),
             block.timestamp + 100
         );
 
@@ -115,7 +150,7 @@ contract ByblackBalancesV28 is ByblackSequenceV24 {
 
         vm.prank(bob);
         lpm.modifyLiquidities(
-            decreasePayload(),
+            payoutPayload(),
             block.timestamp + 100
         );
 
