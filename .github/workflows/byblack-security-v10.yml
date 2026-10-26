@@ -1,10 +1,10 @@
-name: Byblack Security Hunter V25
+name: Byblack Security Hunter V26
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v25:
+  security-v26:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -20,8 +20,8 @@ jobs:
         with:
           version: stable
 
-      - name: Run V25 security tests
+      - name: Run V26 permit security tests
         run: |
           forge test \
-            --match-path 'test/pool-cl/position-managers/ByblackMultiNFTV25.t.sol' \
+            --match-contract ByblackPermitV26 \
             -vvv
