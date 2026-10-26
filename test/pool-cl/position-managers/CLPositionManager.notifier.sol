@@ -691,4 +691,35 @@ contract CLPositionManagerNotifierTest is Test, PosmTestSetup {
         );
         lpm.modifyLiquidities(actions, _deadline);
     }
+
+    /// @notice Regression: a reverting subscriber must not mutate the position or token balances.
+    function test_byblack_revertingSubscriber_preservesPositionAndBalances() public {
+        uint256 tokenId = lpm.nextTokenId();
+        mint(key, -300, 300, 100e18, alice, ZERO_BYTES);
+
+        vm.prank(alice);
+        lpm.approve(address(this), tokenId);
+        lpm.subscribe(tokenId, address(revertSubscriber), ZERO_BYTES);
+
+        uint128 liquidityBefore = lpm.getPositionLiquidity(tokenId);
+        address ownerBefore = lpm.ownerOf(tokenId);
+        uint256 balance0Before = currency0.balanceOf(address(this));
+        uint256 balance1Before = currency1.balanceOf(address(this));
+
+        Plan memory plan = Planner.init();
+        plan.add(
+            Actions.CL_INCREASE_LIQUIDITY,
+            abi.encode(tokenId, 10e18, MAX_SLIPPAGE_INCREASE, MAX_SLIPPAGE_INCREASE, ZERO_BYTES)
+        );
+        bytes memory calls = plan.finalizeModifyLiquidityWithSettlePair(key);
+
+        vm.expectRevert();
+        lpm.modifyLiquidities(calls, _deadline);
+
+        assertEq(lpm.ownerOf(tokenId), ownerBefore, "owner changed after reverted callback");
+        assertEq(lpm.getPositionLiquidity(tokenId), liquidityBefore, "liquidity changed after reverted callback");
+        assertEq(currency0.balanceOf(address(this)), balance0Before, "currency0 changed after revert");
+        assertEq(currency1.balanceOf(address(this)), balance1Before, "currency1 changed after revert");
+        assertEq(address(lpm.subscriber(tokenId)), address(revertSubscriber), "subscriber changed after revert");
+    }
 }
