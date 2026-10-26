@@ -1,10 +1,10 @@
-name: Byblack Security Hunter V27
+name: Byblack Security Hunter V28
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v27:
+  security-v28:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -20,8 +20,8 @@ jobs:
         with:
           version: stable
 
-      - name: Run V27 accounting tests
+      - name: Run V28 token balance tests
         run: |
           forge test \
-            --match-contract ByblackAccountingV27 \
+            --match-contract ByblackBalancesV28 \
             -vvv
