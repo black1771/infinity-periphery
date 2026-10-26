@@ -8,6 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
+    env:
+      FOUNDRY_INVARIANT_RUNS: "256"
+      FOUNDRY_INVARIANT_DEPTH: "100"
+
     steps:
       - name: Checkout V18
         uses: actions/checkout@v4
@@ -30,6 +34,4 @@ jobs:
         run: |
           forge test \
             --match-path 'test/pool-cl/position-managers/ByblackInvariantV18.t.sol' \
-            --invariant-runs 256 \
-            --invariant-depth 100 \
             -vvv
