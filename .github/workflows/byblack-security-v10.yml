@@ -1,0 +1,34 @@
+name: Byblack Security V10
+
+on:
+  workflow_dispatch:
+
+jobs:
+  security-v10:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Reentrancy Tests
+        run: |
+          forge test \
+            --match-path 'test/pool-cl/position-managers/CLPositionManager.notifier.sol' \
+            --match-test 'test_(unsubscribe_reverts_VaultMustBeUnlocked|subscribe_reverts_VaultMustBeUnlocked|transferFrom_reverts_VaultMustBeUnlocked)' \
+            -vv
+
+      - name: Balance Protection Test
+        run: |
+          forge test \
+            --match-path 'test/pool-cl/position-managers/CLPositionManager.notifier.sol' \
+            --match-test 'test_byblack_revertingSubscriber_preservesPositionAndBalances' \
+            -vv
