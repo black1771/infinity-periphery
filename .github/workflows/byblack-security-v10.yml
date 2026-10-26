@@ -1,19 +1,15 @@
-name: Byblack Stateful Hunter V20
+name: Byblack Security Hunter V21
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v20:
+  security-v21:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
-    env:
-      FOUNDRY_INVARIANT_RUNS: "256"
-      FOUNDRY_INVARIANT_DEPTH: "100"
-
     steps:
-      - name: Checkout V20
+      - name: Checkout test branch
         uses: actions/checkout@v4
         with:
           ref: test/byblack-notifier-ci
@@ -24,12 +20,8 @@ jobs:
         with:
           version: stable
 
-      - name: Verify V20
-        run: |
-          test -f test/pool-cl/position-managers/ByblackInvariantV20.t.sol
-
-      - name: Run V20 invariants
+      - name: Run V21 security tests
         run: |
           forge test \
-            --match-path 'test/pool-cl/position-managers/ByblackInvariantV20.t.sol' \
+            --match-path 'test/pool-cl/position-managers/ByblackTransferV21.t.sol' \
             -vvv
