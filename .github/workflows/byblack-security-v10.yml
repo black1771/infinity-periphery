@@ -1,15 +1,15 @@
-name: Byblack Automated Hunter V17
+name: Byblack Stateful Hunter V18
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v17:
+  security-v18:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
     steps:
-      - name: Checkout V17
+      - name: Checkout V18
         uses: actions/checkout@v4
         with:
           ref: test/byblack-notifier-ci
@@ -20,16 +20,16 @@ jobs:
         with:
           version: stable
 
-      - name: Verify V17 exists
+      - name: Verify V18 exists
         run: |
           grep -q \
-            'function testFuzz_byblack_V17_authorizationInvariant' \
-            test/pool-cl/position-managers/CLPositionManager.t.sol
+            'contract ByblackInvariantV18' \
+            test/pool-cl/position-managers/ByblackInvariantV18.t.sol
 
-      - name: Run 1000 fuzz tests
+      - name: Run stateful invariant tests
         run: |
           forge test \
-            --match-path 'test/pool-cl/position-managers/CLPositionManager.t.sol' \
-            --match-test '^testFuzz_byblack_V17_authorizationInvariant$' \
-            --fuzz-runs 1000 \
+            --match-path 'test/pool-cl/position-managers/ByblackInvariantV18.t.sol' \
+            --invariant-runs 256 \
+            --invariant-depth 100 \
             -vvv
