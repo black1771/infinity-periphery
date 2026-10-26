@@ -1,0 +1,26 @@
+name: Byblack PancakeSwap Notifier Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notifier-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Run notifier tests
+        run: |
+          forge test \
+            --match-path 'test/pool-cl/position-managers/CLPositionManager.notifier.sol' \
+            -vv
