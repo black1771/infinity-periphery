@@ -1,10 +1,10 @@
-name: Byblack Security Hunter V23
+name: Byblack Security Hunter V24
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v23:
+  security-v24:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -20,8 +20,8 @@ jobs:
         with:
           version: stable
 
-      - name: Run V23 authorization tests
+      - name: Run V24 tests
         run: |
           forge test \
-            --match-path 'test/pool-cl/position-managers/ByblackAuthV23.t.sol' \
+            --match-path 'test/pool-cl/position-managers/ByblackSequenceV24.t.sol' \
             -vvv
