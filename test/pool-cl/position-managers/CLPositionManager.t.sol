@@ -1320,4 +1320,126 @@ contract PositionManagerTest is Test, PosmTestSetup, LiquidityFuzzers {
         }
     }
 
+
+    function testFuzz_byblack_V17_authorizationInvariant(
+        uint96 rawLiquidity,
+        uint8 rawScenario
+    ) public {
+        address bob = makeAddr("BYBLACK_V17_BOB");
+
+        uint256 tokenId = lpm.nextTokenId();
+
+        mint(
+            key,
+            -120,
+            120,
+            1e18,
+            alice,
+            ZERO_BYTES
+        );
+
+        uint256 liquidityBefore =
+            lpm.getPositionLiquidity(tokenId);
+
+        uint256 decreaseAmount = bound(
+            uint256(rawLiquidity),
+            1,
+            liquidityBefore
+        );
+
+        uint256 scenario = uint256(rawScenario) % 3;
+
+        bytes memory decreaseCalls = getDecreaseEncoded(
+            tokenId,
+            decreaseAmount,
+            0,
+            0,
+            ZERO_BYTES
+        );
+
+        (
+            bytes memory decreaseActions,
+            bytes[] memory decreaseParams
+        ) = abi.decode(
+            decreaseCalls,
+            (bytes, bytes[])
+        );
+
+        Plan memory plan = Planner.init();
+
+        if (scenario == 0 || scenario == 2) {
+            plan.add(
+                Actions.SWEEP,
+                abi.encode(currency0, bob)
+            );
+        }
+
+        for (uint256 i = 0; i < decreaseActions.length; i++) {
+            plan.add(
+                uint8(decreaseActions[i]),
+                decreaseParams[i]
+            );
+        }
+
+        if (scenario == 1 || scenario == 2) {
+            plan.add(
+                Actions.SWEEP,
+                abi.encode(currency1, bob)
+            );
+        }
+
+        uint256 bob0Before = currency0.balanceOf(bob);
+        uint256 bob1Before = currency1.balanceOf(bob);
+
+        uint256 manager0Before =
+            currency0.balanceOf(address(lpm));
+
+        uint256 manager1Before =
+            currency1.balanceOf(address(lpm));
+
+        vm.prank(bob);
+        vm.expectRevert();
+
+        lpm.modifyLiquidities(
+            plan.encode(),
+            block.timestamp + 100
+        );
+
+        assertEq(
+            lpm.ownerOf(tokenId),
+            alice,
+            "V17: ownership changed"
+        );
+
+        assertEq(
+            lpm.getPositionLiquidity(tokenId),
+            liquidityBefore,
+            "V17: liquidity changed"
+        );
+
+        assertEq(
+            currency0.balanceOf(bob),
+            bob0Before,
+            "V17: bob token0 changed"
+        );
+
+        assertEq(
+            currency1.balanceOf(bob),
+            bob1Before,
+            "V17: bob token1 changed"
+        );
+
+        assertEq(
+            currency0.balanceOf(address(lpm)),
+            manager0Before,
+            "V17: manager token0 changed"
+        );
+
+        assertEq(
+            currency1.balanceOf(address(lpm)),
+            manager1Before,
+            "V17: manager token1 changed"
+        );
+    }
+
 }
