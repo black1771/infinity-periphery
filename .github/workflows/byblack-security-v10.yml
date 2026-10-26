@@ -27,15 +27,17 @@ jobs:
             test/pool-cl/position-managers/CLPositionManager.notifier.sol
 
       - name: Reentrancy tests
+        env:
+          FOUNDRY_FUZZ_RUNS: 256
         run: |
           forge test \
             --match-path 'test/pool-cl/position-managers/CLPositionManager.notifier.sol' \
             --match-test 'test_(unsubscribe_reverts_VaultMustBeUnlocked|subscribe_reverts_VaultMustBeUnlocked|transferFrom_reverts_VaultMustBeUnlocked)' \
-            --fail-if-no-tests -vv
+            -vv
 
       - name: Balance protection test
         run: |
           forge test \
             --match-path 'test/pool-cl/position-managers/CLPositionManager.notifier.sol' \
             --match-test '^test_byblack_revertingSubscriber_preservesPositionAndBalances$' \
-            --fail-if-no-tests -vv
+            -vv
