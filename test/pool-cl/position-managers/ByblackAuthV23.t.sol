@@ -120,9 +120,9 @@ contract ByblackAuthV23 is PosmTestSetup {
             selector := mload(add(returndata, 32))
         }
 
-        emit log_named_bytes4(
+        emit log_named_bytes32(
             "V23 unauthorized revert selector",
-            selector
+            bytes32(selector)
         );
 
         emit log_named_bytes(
