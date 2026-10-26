@@ -1,10 +1,10 @@
-name: Byblack Stateful Hunter V19
+name: Byblack Stateful Hunter V20
 
 on:
   workflow_dispatch:
 
 jobs:
-  security-v19:
+  security-v20:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -13,7 +13,7 @@ jobs:
       FOUNDRY_INVARIANT_DEPTH: "100"
 
     steps:
-      - name: Checkout V19
+      - name: Checkout V20
         uses: actions/checkout@v4
         with:
           ref: test/byblack-notifier-ci
@@ -24,12 +24,12 @@ jobs:
         with:
           version: stable
 
-      - name: Verify V19 exists
+      - name: Verify V20
         run: |
-          test -f test/pool-cl/position-managers/ByblackInvariantV19.t.sol
+          test -f test/pool-cl/position-managers/ByblackInvariantV20.t.sol
 
-      - name: Run V19 invariant tests
+      - name: Run V20 invariants
         run: |
           forge test \
-            --match-path 'test/pool-cl/position-managers/ByblackInvariantV19.t.sol' \
+            --match-path 'test/pool-cl/position-managers/ByblackInvariantV20.t.sol' \
             -vvv
