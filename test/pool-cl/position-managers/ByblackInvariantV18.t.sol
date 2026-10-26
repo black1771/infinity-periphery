@@ -74,9 +74,8 @@ contract ByblackHandlerV18 is Test {
 }
 
 contract ByblackInvariantV18 is
-    Test,
-    StdInvariant,
-    PosmTestSetup
+    PosmTestSetup,
+    StdInvariant
 {
     ByblackHandlerV18 public handler;
 
